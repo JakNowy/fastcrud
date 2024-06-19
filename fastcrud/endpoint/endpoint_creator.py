@@ -325,13 +325,17 @@ class EndpointCreator:
         async def endpoint(
             db: AsyncSession = Depends(self.session),
             page: int = Query(
-                1, alias="page", description="Page number, starting from 1"
+                None, alias="page", description="Page number, starting from 1"
             ),
             items_per_page: int = Query(
-                10, alias="itemsPerPage", description="Number of items per page"
+                None, alias="itemsPerPage", description="Number of items per page"
             ),
             filters: dict = Depends(dynamic_filters),
         ):
+            if not (page and items_per_page):
+                return await self.crud.get_multi(db, offset=0, limit=100,
+                                                 **filters)
+
             offset = compute_offset(page=page, items_per_page=items_per_page)
             crud_data = await self.crud.get_multi(
                 db, offset=offset, limit=items_per_page, **filters
