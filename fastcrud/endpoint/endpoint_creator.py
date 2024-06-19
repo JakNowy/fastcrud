@@ -304,22 +304,9 @@ class EndpointCreator:
 
         return endpoint
 
-    def _read_items(self):
-        """Creates an endpoint for reading multiple items from the database."""
-        dynamic_filters = _create_dynamic_filters(self.filter_config, self.column_types)
-
-        async def endpoint(
-            db: AsyncSession = Depends(self.session),
-            offset: int = Query(0),
-            limit: int = Query(100),
-            filters: dict = Depends(dynamic_filters),
-        ):
-            return await self.crud.get_multi(db, offset=offset, limit=limit, **filters)
-
-        return endpoint
-
-    def _read_paginated(self):
-        """Creates an endpoint for reading multiple items from the database with pagination."""
+    def _read_multi(self):
+        """Creates an endpoint for reading multiple items from the database.
+        Supports optional pagination."""
         dynamic_filters = _create_dynamic_filters(self.filter_config, self.column_types)
 
         async def endpoint(
